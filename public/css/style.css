@@ -1,0 +1,238 @@
+body {
+    background-color: rgb(44, 62, 80);
+    color: rgb(236, 240, 241);
+    font-size: 18px;
+    font-family: Georgia, serif;
+    width: 97%; /*fit screen*/
+}
+
+h2 {
+    font-size: 1em;
+    font-weight: bold;
+}
+
+h4 {
+    font-size: 0.9em;
+    font-weight: lighter;
+}
+
+h5 {
+    margin: 0 0 10px 0; 
+    border-bottom: 1px solid rgba(127,140,141 ,1);
+}
+
+#botcontainer {
+    float: right;
+}
+
+a:hover, a:focus, a:active {
+    text-decoration: none;
+    color: rgba(236,240,241 ,1);
+    transition: color 0.8s;
+}
+
+hr {
+    display: block;
+    /* width: inherit; */
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+    margin-left: 10px;
+    margin-right: -10px;
+    border-width: 2px;
+    border-color: rgba(207,216,220 ,1)
+}
+
+section {
+    display: block; /*default*/
+    width: 100%; /*fit screen*/
+    /* margin: 0 10px; */
+    padding: 10px;
+}
+
+section#object_info_external {
+    min-height: 300px;
+}
+
+/* The job of a flex container is 
+to group a bunch of flex items together 
+and define how they’re positioned. */
+.flex_container {
+    display: flex;
+    justify-content: flex-start;
+}
+
+/* This is the nested flex container */
+.flexbox_menu {
+    /* border: 1px solid #FFF; */
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.filesDisplay {
+    float: left;
+    width: 43%;
+    min-height: 350px;
+    background-color: rgb(236, 240, 241);
+    border: 2px solid rgb(63, 89, 115);
+}
+
+.filesDisplay > h2 {
+    margin-top: 10px;
+    margin-left: 10px;
+    margin-bottom: 0;
+    color: rgb(31, 48, 56);
+}
+
+.textFile {
+    overflow: hidden;
+    width: 100%;
+    height: 91%;
+}
+
+/*.objectInfo {
+    float: left;
+    width: 30%;
+    /* margin: 0 20px 0 0; 
+}
+
+.objectInfoBox {
+    /* width: 80%; 
+    min-height: 80px;
+    padding: 10px;
+}*/
+
+.objectInfoBox, #resultsBox, .botcontainer {
+    /* color: rgba(55,71,79 ,1); */
+    border: 2px solid rgb(53, 75, 97);
+    background: rgb(53, 75, 97);
+    box-shadow: 0 20px 80px rgba(0,0,0,.6); 
+    /* box-sizing: border-box; */
+}
+
+#results_container {
+    width: 70%;
+    /* box-sizing: border-box; */
+}
+
+#resultsBox {
+    min-height: 400px;
+    padding: 10px;
+}
+
+#outerbotcontainer {
+    width: 28%;
+    display: block;
+}
+
+.botcontainer {
+    min-height: 400px;
+    padding: 10px;
+    /* width: 98%; */
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    /* position: relative;
+    overflow: hidden;
+    padding-top: 130%;  */
+}
+
+.bot {
+    width: 100%;
+    display: block;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.bot#inputDiv {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.inputText {
+    width: 80%;
+    line-height: 25px;
+    padding-left: 5px;
+    padding-right: 5px;
+    margin-bottom: 20px;
+    color: aliceblue;
+    background-color: rgb(63, 89, 115);
+    border: 1px solid rgb(63, 89, 115) !important;
+}
+
+.inputText:focus {
+    outline: none;
+}
+
+.inputText, .btn {
+    border-radius: 10px;
+}
+
+::placeholder {
+    color: aliceblue;
+    opacity: 0.4;
+}
+
+.btn {
+    font-weight: bold;
+    transition: background 0.6s, color 0.6s;
+    line-height: 25px;
+    color: rgb(236, 240, 241);
+    background-color: rgb(83, 117, 150);
+    border: 1px solid rgb(63, 111, 103) !important;
+}
+
+.btn:hover, .btn:active, .btn:focus {
+    /* color: rgb(236, 240, 241) !important; */
+    background-color: rgb(112, 144, 176) !important;
+    box-shadow: none;
+}
+
+.btn:hover {
+    cursor: pointer;
+}
+
+#runJar {
+    box-shadow: 0 20px 80px rgba(0,0,0,.6); 
+    padding: 5px 10px;
+    font-size: 0.9em;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+    float: right;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+li {
+    display: inline-block;
+    margin: 0 0 0 1px;
+}
+
+/* div.chatbot {
+    width: 100%;
+    height: 100%;
+    box-shadow: 0 20px 80px rgba(0,0,0,.6);
+    border-radius: 5px;
+    overflow: visible;
+    border: none;
+    float: right;
+} */
+
+/* .responsive-iframe {
+    /* Give the iframe a position 
+    relative to the wrapper and 
+    let it be positioned over the
+    padding of the wrapper div 
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+} */

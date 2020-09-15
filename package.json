@@ -1,0 +1,24 @@
+{
+  "name": "socola-demo-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NenaBas/SoCoLa-Demo-Server.git"
+  },
+  "author": "Nena Basina",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NenaBas/SoCoLa-Demo-Server/issues"
+  },
+  "homepage": "https://github.com/NenaBas/SoCoLa-Demo-Server#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security"
+  }
+}
