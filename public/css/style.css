@@ -75,6 +75,7 @@ and define how they’re positioned. */
     min-height: 350px;
     background-color: rgb(236, 240, 241);
     border: 2px solid rgb(63, 89, 115);
+    border-radius: 5px;
 }
 
 .filesDisplay > h2 {
@@ -116,7 +117,7 @@ and define how they’re positioned. */
 }
 
 #resultsBox {
-    min-height: 400px;
+    min-height: 350px;
     padding: 10px;
 }
 
@@ -126,7 +127,7 @@ and define how they’re positioned. */
 }
 
 .botcontainer {
-    min-height: 400px;
+    min-height: 350px;
     padding: 10px;
     /* width: 98%; */
     display: flex;

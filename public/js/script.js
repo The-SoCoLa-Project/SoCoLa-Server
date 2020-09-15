@@ -19,13 +19,16 @@ function onLoad() {
 	// reader.addEventListener('error', function() {
 	//     alert('Error : Failed to read file');
     // });
-    txt.setAttribute('data', '../reasoner/visionInput.lp.txt')
+    txt.setAttribute('data', 'info.txt')
 }
 
 // what happens when the Run Jar btn is clicked
 document.getElementById('runJar').addEventListener('click', function() {
-    var outputFile = document.getElementById('outputFileText')
-    outputFile.setAttribute('data', '../reasoner/reasonerOutput.txt')
+    //test
+    var resultsBox = document.getElementById('resultsBox');
+    resultsBox.innerHTML = "asdfawggeeesdgsssaa";
+    var outputFile = document.getElementById('outputFileText');
+    outputFile.setAttribute('data', '/reasoner/reasonerOutput.txt');
 })
 
 

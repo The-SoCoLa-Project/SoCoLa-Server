@@ -1,0 +1,10 @@
+%% Every line is a new argument!
+
+%%../exec/clingo5_4 
+%%DEC.lp 
+%%visionInput.lp 0
+%/Users/patkos/Programs and Files/ASP Programs/exec/clingo5_4
+./clingo5_4
+%/Users/patkos/Programs and Files/ASP Programs/SoCoLA/visionInput.lp
+./visionInput.lp
+0
