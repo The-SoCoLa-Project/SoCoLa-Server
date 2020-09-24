@@ -1,3 +1,7 @@
+// =============================================================================
+// CLIENT SIDE CODE
+// =============================================================================
+
 // Onload, convert the .lp input file to text and display it inside component 
 function onLoad() {
     var txt = document.getElementById('inputFileText')
@@ -19,19 +23,42 @@ function onLoad() {
 	// reader.addEventListener('error', function() {
 	//     alert('Error : Failed to read file');
     // });
-    txt.setAttribute('data', 'info.txt')
+    txt.setAttribute('data', '/reasoner/visionInput.lp.txt')
+    document.getElementById('interactionMsg').style.visibility = "hidden"
 }
 
-// what happens when the Run Jar btn is clicked
-document.getElementById('runJar').addEventListener('click', function() {
+const func = () => fetch(`https://8f31e086465a.ngrok.io/api/reasoner/`, {method: "GET"});
+
+// what happens when the Run Clingo btn is clicked
+document.getElementById('runClingo').addEventListener('click', function(e) {
     //test
     var resultsBox = document.getElementById('resultsBox');
-    resultsBox.innerHTML = "asdfawggeeesdgsssaa";
+    resultsBox.innerHTML = "run clingo button clicked";
+
     var outputFile = document.getElementById('outputFileText');
     outputFile.setAttribute('data', '/reasoner/reasonerOutput.txt');
+    func();
+    var msg = document.getElementById('interactionMsg');
+    msg.style.visibility = "visible";
+    msg.textContent = "Clingo has run successfully!";
+    msg.style.color = "#5DA85D"
 })
 
+// what happens when the Edit File btn is clicked
+document.getElementById('editFile').addEventListener('click', function(e) {
+    //test
+    var resultsBox = document.getElementById('resultsBox');
+    resultsBox.innerHTML = "edit file button clicked";
 
+    var msg = document.getElementById('interactionMsg');
+    msg.style.visibility = "visible";
+    // msg.textContent = "Clingo has run successfully!";
+    // msg.style.color = "#5DA85D"
+})
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// lower half - chatbot
+//
 // what happens when the OK btn in the chatbot area is clicked
 document.getElementById('ok').addEventListener('click', function() {
     var inputTxt = document.getElementById('userInput').value

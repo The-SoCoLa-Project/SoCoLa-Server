@@ -6,6 +6,12 @@ body {
     width: 97%; /*fit screen*/
 }
 
+h1 {
+    font-size: 1.5em;
+    line-height: 0.5em;
+    margin: 0;
+}
+
 h2 {
     font-size: 1em;
     font-weight: bold;
@@ -21,10 +27,6 @@ h5 {
     border-bottom: 1px solid rgba(127,140,141 ,1);
 }
 
-#botcontainer {
-    float: right;
-}
-
 a:hover, a:focus, a:active {
     text-decoration: none;
     color: rgba(236,240,241 ,1);
@@ -34,8 +36,8 @@ a:hover, a:focus, a:active {
 hr {
     display: block;
     /* width: inherit; */
-    margin-top: 1.5em;
-    margin-bottom: 0.5em;
+    margin-top: 0.7em;
+    margin-bottom: 0;
     margin-left: 10px;
     margin-right: -10px;
     border-width: 2px;
@@ -45,10 +47,29 @@ hr {
 section {
     display: block; /*default*/
     width: 100%; /*fit screen*/
-    /* margin: 0 10px; */
     padding: 10px;
 }
 
+/********************************************************/
+/* TOP AREA */
+/********************************************************/
+section#top {
+    display: flex;
+    justify-content: space-between;
+}
+
+#interactionMsg {
+    padding: 0;
+    margin: 0;
+    line-height: 0.5em;
+    justify-content: flex-end;
+    /* color: #B17A6F; */
+    /* color: #5DA85D; /*green*/ 
+}
+
+/********************************************************/
+/* FILES AREA */
+/********************************************************/
 section#object_info_external {
     min-height: 300px;
 }
@@ -91,19 +112,27 @@ and define how they’re positioned. */
     height: 91%;
 }
 
-/*.objectInfo {
-    float: left;
-    width: 30%;
-    /* margin: 0 20px 0 0; 
+.btnDisplay {
+    width: 10%;
+    display: table;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-left: 1%;
+    padding-right: 1%;
 }
 
-.objectInfoBox {
-    /* width: 80%; 
-    min-height: 80px;
-    padding: 10px;
-}*/
+.btnDisplay > button {
+    width: 100%;
+    margin-bottom: 10px;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-content: center;
+}
 
-.objectInfoBox, #resultsBox, .botcontainer {
+/********************************************************/
+/* LOWER AREA */
+/********************************************************/
+#resultsBox, .botcontainer {
     /* color: rgba(55,71,79 ,1); */
     border: 2px solid rgb(53, 75, 97);
     background: rgb(53, 75, 97);
@@ -111,23 +140,30 @@ and define how they’re positioned. */
     /* box-sizing: border-box; */
 }
 
+section#bot_and_results {
+    min-height: 400px;
+    /* height: 500px; */
+}
+
 #results_container {
     width: 70%;
+    height: 100%;
     /* box-sizing: border-box; */
 }
 
 #resultsBox {
-    min-height: 350px;
+    height: 100%;
     padding: 10px;
 }
 
 #outerbotcontainer {
     width: 28%;
     display: block;
+    height: 100%;
 }
 
 .botcontainer {
-    min-height: 350px;
+    height: 100%;
     padding: 10px;
     /* width: 98%; */
     display: flex;
@@ -176,28 +212,68 @@ and define how they’re positioned. */
 }
 
 .btn {
+    /* outline: none; */
+    cursor: pointer;
     font-weight: bold;
-    transition: background 0.6s, color 0.6s;
+    text-align: center;
+    transition: background 0.5s, color 0.5s;
     line-height: 25px;
     color: rgb(236, 240, 241);
     background-color: rgb(83, 117, 150);
-    border: 1px solid rgb(63, 111, 103) !important;
+    border: 1px solid #333C44 !important;
+    box-shadow: 0 5px #333C44;
 }
 
 .btn:hover, .btn:active, .btn:focus {
     /* color: rgb(236, 240, 241) !important; */
     background-color: rgb(112, 144, 176) !important;
+    /* box-shadow: none; */
+    outline: none;
+}
+
+.btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 3px #333C44;
+}
+
+#runClingo, #editFile {
+    /* box-shadow: 0 20px 80px rgba(0,0,0,.6);  */
+    padding: 5px 10px;
+    font-size: 0.9em;
+    /* width: 100px; */
+}
+
+#ok {
+    box-shadow: 0 2px #333C44;
+}
+
+#ok:active {
     box-shadow: none;
 }
 
-.btn:hover {
-    cursor: pointer;
+#editFile span {
+    display: inline-block;
+    position: relative;
+    padding: 0;
+    margin: 0;
 }
 
-#runJar {
-    box-shadow: 0 20px 80px rgba(0,0,0,.6); 
-    padding: 5px 10px;
-    font-size: 0.9em;
+#editFile span:after {
+    content: "<<";
+    position: absolute;
+    opacity: 0;
+    left: -10px;
+    transition: 0.5s;
+}
+
+#editFile:hover span{
+    padding-left: 25px;
+    /* padding-right: 10px; */
+}
+
+#editFile:hover span:after{
+    opacity: 1;
+    left: 0;
 }
 
 ul {

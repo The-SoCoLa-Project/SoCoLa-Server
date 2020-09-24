@@ -1,20 +1,122 @@
-const express = require('express')
-const app = express()
+// =============================================================================
+// SERVER SIDE CODE
+// =============================================================================
 
-const http = require('http')
-const fs = require('fs')    // file system module
-const path = require('path')
+const express = require('express');
+const app = express();
 
-const port = 7000
+// const http = require('http')
+// const fs = require('fs')    // file system module
+// const path = require('path')
+const bodyParser = require('body-parser');
+
+// Since we are calling the API from different locations by hitting endpoints in the browser,
+// We also have to install the CORS middleware.
+const cors = require('cors')
+// const runClingo = require('./child_runClingo.js')
+
+const port = process.env.port || 80
 const hostname = 'localhost'
+
+app.listen(port, hostname, () => {
+    console.log(`Server is listening at    http://${hostname}:${port}/`)
+});
 
 // app.set('view engine', 'css')
 // all files inside public are static and available to the frontend
 app.use(express.static('public'));
-app.use(express.static('views'));
-// app.set('views', './views');
-// will not need to add app.get to specify URL to index.html, since its the only html file we have
+app.use(express.static('views'));   // may need to delete later
 
-app.listen((process.env.port || port), hostname, () => {
-    console.log(`Server is listening at    http://${hostname}:${(process.env.port || port)}/`)
-})
+// SERVE THE HOMEPAGE (for now not needed since we have only one html file)
+// app.get('/', (req, res) => {
+//     res.sendFile(__dirname + '/index.html')
+// });
+
+app.use(cors());
+
+// Configuring body parser middleware
+// this will let us get the data from a POST
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+
+// ROUTES FOR OUR API
+// =============================================================================
+const router = express.Router();
+
+// middleware to use for all requests
+// we want sth to happen every time a request is sent to our API
+router.use(function(req, res, next) {
+    // logging
+    console.log('Something is happening.');
+    next(); // make sure we go to the next routes and don't stop here
+});
+
+// test router (accessed at GET http://localhost:80/api)
+router.get('/', function(req, res) {
+    res.json({message: 'Welcome to the API!'});
+});
+
+//
+
+// REGISTER OUR ROUTES -------------------------------
+// all of our routes will be prefixed with /api
+app.use('/api', router);
+
+
+// GET call to exec a jar file when a button is clicked
+// upon request to the path, do the system call
+
+// on routes that end in /reasoner
+// ----------------------------------------------------
+router.route('/reasoner')
+// (accessed at GET http://localhost:80/api/reasoner)
+.get((req, res) => {
+    // var childProcess = runClingo();
+    var exec = require('child_process').exec, child;
+    child = exec('clingo  .\\public\\reasoner\\visionInput.lp 0 > .\\public\\reasoner\\reasonerOutput.txt', function(error, stdout, stderr) {
+        // console.log('-------------------\nstdout: \n' + stdout);
+        // console.log('-------------------\nstderr: \n' + stderr);
+        if(error !== null) {
+            console.log('exec error: ' + error);
+        }
+    });
+
+    // add an event listener for the error event so that all errors are handled
+    // If an error is not handled, the node process will crash and exit
+    child.on('error', (err) => {
+        console.log(err)
+    });
+
+    // handler for the exit event
+    // signal var is null when the child exits normally
+    child.on('exit', function (code, signal) {
+        console.log('Child process __runClingo__ exited with ' +
+                    `code ${code} and signal ${signal}`);        
+    });
+
+    child.on('close', () => {
+        console.log('child stream __runClingo__ closed.')
+    });
+
+    child.stdout.on('data', (data) => {
+        console.log(`child __runClingo__ stdout:\n${data}`);
+    });
+        
+    child.stderr.on('data', (data) => {
+        console.error(`child __runClingo__ stderr:\n${data}`);
+    });
+
+
+
+    // an error occurred with clingo most probably
+    // if (childProcess == "") {
+    //     // TODO: proper error msg
+    //     res.json({message: 'An error occurred with clingo.'})
+    // } else {
+    //     res.json({message: ('CLINGO OUTPUT: ' + childProcess)})
+    // }
+
+    res.json({message: 'access to reasoner!'});
+    
+});

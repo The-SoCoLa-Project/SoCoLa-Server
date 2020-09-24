@@ -9,6 +9,10 @@
     <!-- <link rel="stylesheets" href="../public/css/style.css"> -->
 </head>
 <body onload="onLoad()">
+    <section id="top">
+        <h1>SoCoLa Demo 7.3</h1>
+        <span id="interactionMsg"></span>
+    </section>
     <section id="object_info_external">
         <!-- <h2>Object Info</h2> -->
         <div class="flex_container">
@@ -19,12 +23,15 @@
                     <object id="inputFileText" class="textFile" 
                         ></object>
                 </div>
-                <div><button id="runJar" class="btn">Run Jar</button></div>
+                <div class="btnDisplay">
+                    <button id="runClingo" class="btn">Run Clingo</button>
+                    <button id="editFile" class="btn"><span>Edit File</span></button>
+                </div>
                 <!-- display the output file -->
                 <div id="outputFile" class="filesDisplay">
                     <h2>Output file:</h2>
                     <object id="outputFileText" class="textFile" type="text/plain" 
-                        standby="Run Jar to get the results"></object>
+                        standby="Run Clingo to get the results"></object>
                 </div>
 
                 <!-- <div id="objectName"    class="objectInfo">
@@ -61,7 +68,7 @@
                             </div>
                             <h5>Bot Reply:</h5>
                             <div id="outputDiv">
-                                <span id="botReply">dfasdfsdf</span>
+                                <span id="botReply">TODO: Bot replies here.</span>
                             </div>
                         </div>
                     </div>
