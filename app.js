@@ -28,9 +28,9 @@ app.use(express.static('public'));
 app.use(express.static('views'));   // may need to delete later
 
 // SERVE THE HOMEPAGE (for now not needed since we have only one html file)
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/oldindex.html')
-});
+// app.get('/', (req, res) => {
+//     res.sendFile(__dirname + '/oldindex.html')
+// });
 
 app.use(cors());
 
@@ -55,6 +55,8 @@ router.use(function(req, res, next) {
 // test router (accessed at GET http://localhost:80/api)
 router.get('/', function(req, res) {
     res.json({message: 'Welcome to the API!'});
+    var base = process.env.PWD
+    console.log("Path: " + __dirname);
 });
 
 //
@@ -74,7 +76,9 @@ router.route('/reasoner')
 .get((req, res) => {
     // var childProcess = runClingo();
     var exec = require('child_process').exec, child;
-    child = exec('java -jar  .\\SocReasonerv1_2.jar', function(error, stdout, stderr) {
+    projectDIR = process.cwd();
+    console.log('Starting dir: ' + projectDIR);
+    child = exec(`java -jar  ${projectDIR}\\public\\reasoner\\SocReasonerv1_2.jar`, function(error, stdout, stderr) {
         console.log('-------------------\nstdout: \n' + stdout);
         // console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
