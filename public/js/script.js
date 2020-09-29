@@ -23,7 +23,7 @@ function onLoad() {
 	// reader.addEventListener('error', function() {
 	//     alert('Error : Failed to read file');
     // });
-    txt.setAttribute('data', '/reasoner/visionInput.lp.txt')
+    txt.setAttribute('data', 'visionInput.lp.txt')
     document.getElementById('interactionMsg').style.visibility = "hidden"
 }
 

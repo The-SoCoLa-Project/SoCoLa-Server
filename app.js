@@ -28,9 +28,9 @@ app.use(express.static('public'));
 app.use(express.static('views'));   // may need to delete later
 
 // SERVE THE HOMEPAGE (for now not needed since we have only one html file)
-// app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/index.html')
-// });
+app.get('/', (req, res) => {
+    res.sendFile(__dirname + '/oldindex.html')
+});
 
 app.use(cors());
 
@@ -39,7 +39,7 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
-
+// =============================================================================
 // ROUTES FOR OUR API
 // =============================================================================
 const router = express.Router();
@@ -74,8 +74,8 @@ router.route('/reasoner')
 .get((req, res) => {
     // var childProcess = runClingo();
     var exec = require('child_process').exec, child;
-    child = exec('clingo  .\\public\\reasoner\\visionInput.lp 0 > .\\public\\reasoner\\reasonerOutput.txt', function(error, stdout, stderr) {
-        // console.log('-------------------\nstdout: \n' + stdout);
+    child = exec('java -jar  .\\SocReasonerv1_2.jar', function(error, stdout, stderr) {
+        console.log('-------------------\nstdout: \n' + stdout);
         // console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
             console.log('exec error: ' + error);
@@ -99,24 +99,37 @@ router.route('/reasoner')
         console.log('child stream __runClingo__ closed.')
     });
 
-    child.stdout.on('data', (data) => {
-        console.log(`child __runClingo__ stdout:\n${data}`);
-    });
+    // This will display each part of the stdout as it happens
+    // child.stdout.on('data', (data) => {
+    //     console.log(`child __runClingo__ stdout:\n${data}`);
+    // });
         
     child.stderr.on('data', (data) => {
         console.error(`child __runClingo__ stderr:\n${data}`);
     });
 
-
-
-    // an error occurred with clingo most probably
-    // if (childProcess == "") {
-    //     // TODO: proper error msg
-    //     res.json({message: 'An error occurred with clingo.'})
-    // } else {
-    //     res.json({message: ('CLINGO OUTPUT: ' + childProcess)})
-    // }
-
     res.json({message: 'access to reasoner!'});
     
+});
+
+
+
+// CHECKING
+// on routes that end in /controller
+// ----------------------------------------------------
+router.route('/controller')
+// (accessed at GET http://localhost:80/api/controller)
+.get((req, res) => {
+    const zmq = require("zeromq");
+    async function run() {
+        const sock = new zmq.Request;
+        sock.connect("tcp://139.91.185.14:5555");
+        console.log("Producer bound to port 5555");
+        await sock.send("4");
+        const [result] = await sock.receive();
+        console.log(result);
+        // res.json
+    }
+    run();
+    res.json({message: 'connection to controller established, waiting for message'});
 });
