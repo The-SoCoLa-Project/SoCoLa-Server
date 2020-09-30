@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="author" content="Nena Basina">
+    <meta name="description" content="Testing page for the SoCoLa Demo 7.3">
+    <title>SoCoLa Demo</title>
+    <link rel="stylesheet" type="text/css" href="/css/oldstyle.css">
+    <!-- <link rel="stylesheets" href="../public/css/style.css"> -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body onload="onLoad()">
+    <section id="top">
+        <h1>SoCoLa Demo 7.3</h1>
+        <span id="interactionMsg"></span>
+    </section>
+    <section id="object_info_external">
+        <!-- <h2>Object Info</h2> -->
+        <div class="flex_container">
+            <div class="flexbox_menu">
+                <!-- display inout files -->
+                <div id="inputFiles" class="filesDisplay">
+                    <h2>Input file:</h2>
+                    <object id="inputFileText" class="textFile" 
+                        ></object>
+                </div>
+                <div class="btnDisplay">
+                    <button id="runClingo" class="btn">Run Clingo</button>
+                    <button id="editFile" class="btn"><span>Edit File</span></button>
+                </div>
+                <!-- display the output file -->
+                <div id="outputFile" class="filesDisplay">
+                    <h2>Output file:</h2>
+                    <object id="outputFileText" class="textFile" type="text/plain" 
+                        standby="Run Clingo to get the results"></object>
+                </div>
+
+                <!-- <div id="objectName"    class="objectInfo">
+                    <h4>Object Name</h4>
+                    <div class="objectInfoBox">object name displayed here</div>
+                </div>
+                <div id="actions"       class="objectInfo">
+                    <h4>Actions</h4>
+                    <div class="objectInfoBox">actions applicable to the object</div>
+                </div>
+                <div id="objectStates"  class="objectInfo">
+                    <h4>Object States</h4>
+                    <div class="objectInfoBox">states the object can be found into</div>
+                </div> -->
+            </div>
+        </div>
+    </section>
+    <hr size="2">
+    <section id="bot_and_results">
+        <div class="flex_container">
+            <div class="flexbox_menu">
+                <div id="results_container">
+                    <h2>Results</h2>
+                    <div id="resultsBox">τεστ</div>
+                </div>
+                <div id="outerbotcontainer">
+                    <h2>SoCoLaBot</h2>
+                    <div class="botcontainer">
+                        <div class="bot">
+                            <h5>Input text:</h5>
+                            <div id="inputDiv">
+                                <input type="text" id="userInput" class="inputText" placeholder="Write something...">
+                                <button id="ok" class="btn">OK</button>
+                            </div>
+                            <h5>Bot Reply:</h5>
+                            <div id="outputDiv">
+                                <span id="botReply">TODO: Bot replies here.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- will not work if put into the head area -->
+    <script src="/js/oldscript.js"></script>
+    <!-- <script src="../public/js/script.js"></script> -->
+</body>
+</html>
