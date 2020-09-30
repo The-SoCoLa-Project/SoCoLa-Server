@@ -27,7 +27,14 @@ function onLoad() {
     document.getElementById('interactionMsg').style.visibility = "hidden"
 }
 
-const func = () => fetch(`https://8f31e086465a.ngrok.io/api/reasoner/`, {method: "GET"});
+// const func = () => fetch(`https://localhost:80/api/reasoner/`, {
+//     method: "GET",
+//     headers: {
+//         "Content-Type": "text/plain"
+//     }
+// });
+
+const func = () => $.get("./api/reasoner/");
 
 // what happens when the Run Clingo btn is clicked
 document.getElementById('runClingo').addEventListener('click', function(e) {

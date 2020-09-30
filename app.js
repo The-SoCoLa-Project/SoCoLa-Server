@@ -10,9 +10,6 @@ const app = express();
 // const path = require('path')
 const bodyParser = require('body-parser');
 
-// Since we are calling the API from different locations by hitting endpoints in the browser,
-// We also have to install the CORS middleware.
-const cors = require('cors')
 // const runClingo = require('./child_runClingo.js')
 
 const port = process.env.port || 80
@@ -32,12 +29,32 @@ app.use(express.static('views'));   // may need to delete later
 //     res.sendFile(__dirname + '/oldindex.html')
 // });
 
-app.use(cors());
-
 // Configuring body parser middleware
 // this will let us get the data from a POST
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+// Since we are calling the API from different locations by hitting endpoints in the browser,
+// We also have to install the CORS middleware.
+const cors = require('cors')
+app.use(cors({origin: "http://localhost:80"}));
+// =============================================================================
+// ADD HEADERS - we don't need this because of using cors
+// =============================================================================
+// app.use(function(req,res,next) {
+//     // Website you wish to allow to connect
+//     res.setHeader('Access-Control-Allow-Origin', "http://localhost:80");
+//     // Request methods you wish to allow
+//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, FETCH");
+//     // Request headers to allow
+//     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
+//     // Set to true if you need the website to include cookies in the request 
+//     // sent to the API (eg. in case of using sessions)
+//     res.setHeader("Access-Control-Allow-Credentials", true);
+//     // Pass to next layer of middleware
+//     next();
+// });
+
 
 // =============================================================================
 // ROUTES FOR OUR API
@@ -55,8 +72,8 @@ router.use(function(req, res, next) {
 // test router (accessed at GET http://localhost:80/api)
 router.get('/', function(req, res) {
     res.json({message: 'Welcome to the API!'});
-    var base = process.env.PWD
-    console.log("Path: " + __dirname);
+    // var base = process.env.PWD
+    // console.log("Path: " + __dirname);
 });
 
 //
@@ -72,15 +89,15 @@ app.use('/api', router);
 // on routes that end in /reasoner
 // ----------------------------------------------------
 router.route('/reasoner')
-// (accessed at GET http://localhost:80/api/reasoner)
+// (accessed at post http://localhost:80/api/reasoner)
 .get((req, res) => {
     // var childProcess = runClingo();
     var exec = require('child_process').exec, child;
-    projectDIR = process.cwd();
-    console.log('Starting dir: ' + projectDIR);
-    child = exec(`java -jar  ${projectDIR}\\public\\reasoner\\SocReasonerv1_2.jar`, function(error, stdout, stderr) {
+    var shellCode = `java -jar .\\SocReasonerv1_2.jar`;
+    console.log("JAR: ",shellCode)
+    child = exec(shellCode, {cwd:".\\public\\reasoner"}, function(error, stdout, stderr) {
         console.log('-------------------\nstdout: \n' + stdout);
-        // console.log('-------------------\nstderr: \n' + stderr);
+        console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
             console.log('exec error: ' + error);
         }
@@ -107,10 +124,9 @@ router.route('/reasoner')
     // child.stdout.on('data', (data) => {
     //     console.log(`child __runClingo__ stdout:\n${data}`);
     // });
-        
-    child.stderr.on('data', (data) => {
-        console.error(`child __runClingo__ stderr:\n${data}`);
-    });
+    // child.stderr.on('data', (data) => {
+    //     console.error(`child __runClingo__ stderr:\n${data}`);
+    // });
 
     res.json({message: 'access to reasoner!'});
     
