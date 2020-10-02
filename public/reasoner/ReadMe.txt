@@ -19,69 +19,17 @@ This happens only once, at training time, not at run-time
 
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Scenario A
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-@Controler
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Modify file "observations.lp" with object states and actions, e.g.,
-
-holdsAt(currentState(knife, placedOnTable), 0).
-
-happens(pickUp,1).
-
-
 @UI
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Add in "reasonerInit.txt" the command
+Step 1. Write the json message received from Vision in the file "jsonIncomingMessage.txt"
 
-./clingo5_4
-./observations.lp
-./visionInput.lp
-./domainAxiomsVision.lp
-./DEC.lp
--c maxstep=2
-0
+Step 2. Make sure the json message also contains the entries 
+"Scenario": 2, "Step" : 2,
+BEFORE the message tag
 
-Run "reasonser.jar"
+Step 3. Run the jar
 
-Show the content of "reasonerOutput.txt" on the "Reasoner" window
+Step 4. Show in GUI the content of the file reasonerOutput.txt
+
+That's all!
 
 
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Scenario B
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-@Controler
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Modify file "planner_initial.lp" with object states, e.g.,
-
-holdsAt(currentState(knife, placedOnTable), 0).
-
-
-Then, modify file "planner_goal.lp" with object states, e.g.,
-
-goalAchieved(t) :- 
-	holdsAt(currentState(knife,carring2),t).
-
-
-
-@UI
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-Add in "reasonerInit.txt" the command
-
-./clingo5_4
-./planner.lp
-0
-
-Run "reasoner.jar"
-
-Show the content of "reasonerOutput.txt" on the "Reasoner" window

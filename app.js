@@ -1,19 +1,17 @@
 // =============================================================================
 // SERVER SIDE CODE
 // =============================================================================
-
 const express = require('express');
 const app = express();
 
-// const http = require('http')
-// const fs = require('fs')    // file system module
-// const path = require('path')
+const fs = require('fs');    // file system module
 const bodyParser = require('body-parser');
-
-// const runClingo = require('./child_runClingo.js')
+const zmq = require("zeromq");
 
 const port = process.env.port || 80
 const hostname = 'localhost'
+
+var sessionID = 0;
 
 app.listen(port, hostname, () => {
     console.log(`Server is listening at    http://${hostname}:${port}/`)
@@ -72,8 +70,6 @@ router.use(function(req, res, next) {
 // test router (accessed at GET http://localhost:80/api)
 router.get('/', function(req, res) {
     res.json({message: 'Welcome to the API!'});
-    // var base = process.env.PWD
-    // console.log("Path: " + __dirname);
 });
 
 //
@@ -91,9 +87,8 @@ app.use('/api', router);
 router.route('/reasoner')
 // (accessed at post http://localhost:80/api/reasoner)
 .get((req, res) => {
-    // var childProcess = runClingo();
     var exec = require('child_process').exec, child;
-    var shellCode = `java -jar .\\SocReasonerv1_2.jar`;
+    var shellCode = `java -jar .\\SocReasonerv1_3.jar`;
     console.log("JAR: ",shellCode)
     child = exec(shellCode, {cwd:".\\public\\reasoner"}, function(error, stdout, stderr) {
         console.log('-------------------\nstdout: \n' + stdout);
@@ -140,16 +135,80 @@ router.route('/reasoner')
 router.route('/controller')
 // (accessed at GET http://localhost:80/api/controller)
 .get((req, res) => {
-    const zmq = require("zeromq");
+    var print = "";
     async function run() {
-        const sock = new zmq.Request;
-        sock.connect("tcp://139.91.185.14:5555");
-        console.log("Producer bound to port 5555");
-        await sock.send("4");
-        const [result] = await sock.receive();
-        console.log(result);
-        // res.json
+        try{
+            const sock = new zmq.Reply;
+            await sock.bind("tcp://*:5556");
+            console.log("Producer bound to port 5556");
+            var [result] = await sock.receive();
+            var controllerReply=JSON.parse(result); 
+            console.log("Before init msg ",controllerReply);
+            var jsonInitMessage= {
+                'Sender': "UI",
+                'Source': "-",
+                'Component': "-",
+                'SessionId': "-",
+                'Message': "Hello",
+            };
+            var jsonInit=JSON.stringify(jsonInitMessage);
+            // both send() and receive() are blocking (by default)
+            await sock.send(jsonInit);
+            [result] = await sock.receive();
+            // var rawStr = result.toString("utf-8");
+            controllerReply=JSON.parse(result);
+            console.log("After 2nd receive ",controllerReply);
+
+
+            // save the received text into a file
+            // fs.writeFile('./public/reasoner/jsonIncomingMessage.json', print, function(err) {
+            //     if (err) return console.error(err);
+            //     console.log('json text received > jsonIncomingMessage.txt');
+            // });
+
+        } catch(e) {
+            console.error(e);
+        }
+        res.json({message: "connection with controller established"});
+
+        // console.log('Received ',print);
+        // res.json({message: print});
+        
     }
     run();
-    res.json({message: 'connection to controller established, waiting for message'});
+});
+
+
+function getCurSessionID() {
+    return sessionID;
+};
+
+
+///////// FOR TESTING PURPOSES - TO BE INTEGRATED ABOVE
+router.route('/controller/parseJson')
+// (accessed at GET http://localhost:80/api/controller/parseJson)
+.get((req, res) => {
+    // test function 
+    var curSession = getCurSessionID();
+    console.log("Current SessionID: ",curSession);
+
+
+    // this can only work once - require is synchronous, the calls receive a cached result
+    // if the file is updated, it cannot be re-read
+    // var jsonVision = require('./public/reasoner/jsonTest.json');
+
+    // read json file, change a value and then re-write it
+    let rawdata = fs.readFileSync('./public/reasoner/jsonTest.json');
+    let controller = JSON.parse(rawdata);
+    console.log(controller);
+    console.log("previous sessionid: ",controller.SessionId);
+
+    // add Scenario and Step tags at the start of the json file
+    var addToJson = {"Scenario":2,"Step":2};
+    var newJson = Object.assign(addToJson, controller)
+    console.log("new json: ",newJson);
+    fs.writeFileSync('./public/reasoner/jsonTest.json',JSON.stringify(newJson,null,"\t"));
+
+    console.log("after the fs.readFileSync")
+    res.json({message: "done parsing json"});
 });

@@ -1,13 +1,13 @@
-Reasoner Output - 30/09/2020 15:38:40
+Reasoner Output - 02/10/2020 17:03:42
 
 clingo version 5.4.0
 Reading from ./planner.lp
 Solving...
 Answer: 1
-holdsAt(currentState(knife,placedOnTable),0)
+holdsAt(currentState(bottle,open),0) holdsAt(currentState(bottle,empty),0)
 SATISFIABLE
 
 Models       : 1
 Calls        : 1
-Time         : 0.008s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
-CPU Time     : 0.000s
+Time         : 0.007s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.016s

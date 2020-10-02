@@ -1,0 +1,14 @@
+%% Every line is a new argument!
+%
+
+./clingo5_4
+./observations.lp
+./visionInput.lp
+./domainAxiomsVision.lp
+./DEC.lp
+-c maxstep=2
+0
+
+%./clingo5_4
+%./planner.lp
+%0
