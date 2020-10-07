@@ -1,17 +1,19 @@
 // =============================================================================
 // SERVER SIDE CODE
 // =============================================================================
-const express = require('express');
-const app = express();
+const express   = require('express');
+const app       = express();
 
-const fs = require('fs');    // file system module
-const bodyParser = require('body-parser');
-const zmq = require("zeromq");
+const fs        = require('fs');    // file system module
+const bodyParser= require('body-parser');
+const zmq       = require("zeromq");
+const session   = require('express-session'); // cookie-based session management
+const uuid      = require('uuid'); // generate random strings
 
 const port = process.env.port || 80
 const hostname = 'localhost'
 
-var sessionID = 0;
+var scenario, step;
 
 app.listen(port, hostname, () => {
     console.log(`Server is listening at    http://${hostname}:${port}/`)
@@ -22,9 +24,11 @@ app.listen(port, hostname, () => {
 app.use(express.static('public'));
 app.use(express.static('views'));   // may need to delete later
 
-// SERVE THE HOMEPAGE (for now not needed since we have only one html file)
 // app.get('/', (req, res) => {
-//     res.sendFile(__dirname + '/oldindex.html')
+//     console.log(req);
+//     const uniqueId = uuid();
+//     res.send('Hit home page! UniqueId: ',uniqueId);
+//     // res.sendFile(__dirname + '/oldindex.html')
 // });
 
 // Configuring body parser middleware
@@ -55,6 +59,36 @@ app.use(cors({origin: "http://localhost:80"}));
 
 
 // =============================================================================
+// CONFIGURE SESSION AND COOKIES
+// =============================================================================
+//// To store or acces session data, simply use the request property req.session
+//
+// secure: true -> recommended but requires https-enabled website
+// HTTPS is necessary for secure cookies
+// If secure==true, and site access over HTTP -> cookie not set
+// If nodejs behind a proxy and secure==true -> set trust proxy
+app.set('trust proxy', 1);  // trust first proxy
+app.use(session({
+    secret: 'keyboardcat',
+    // genid: function(req) {
+    //     return uuid();  // use UUIDs for session IDs
+    // },
+    resave: false,
+    saveUninitialized: true,
+    cookie: { 
+        secure: true 
+    }
+}));
+
+// clear the entire session and start a new one
+function newSession(req) {
+    console.log("Before session regen. ID: ",req.sessionID);
+    req.session.regenerate(function(err) {
+        if (err) console.error("Couldn't regenerate session!"); 
+    });
+}
+
+// =============================================================================
 // ROUTES FOR OUR API
 // =============================================================================
 const router = express.Router();
@@ -69,7 +103,12 @@ router.use(function(req, res, next) {
 
 // test router (accessed at GET http://localhost:80/api)
 router.get('/', function(req, res) {
-    res.json({message: 'Welcome to the API!'});
+    // test session
+    // everytime the server is restarted, the sessionID changes
+    console.log(req.session.id);
+    res.write(`<h1>Welcome to the API!</h1>`);
+    res.write(`<h3>SessionID: ${req.sessionID}</h3>`);
+    res.end();
 });
 
 //
@@ -90,11 +129,13 @@ router.route('/reasoner')
     var exec = require('child_process').exec, child;
     var shellCode = `java -jar .\\SocReasonerv1_3.jar`;
     console.log("JAR: ",shellCode)
+
+    res.write(`Access to reasoner...\n`);
     child = exec(shellCode, {cwd:".\\public\\reasoner"}, function(error, stdout, stderr) {
         console.log('-------------------\nstdout: \n' + stdout);
         console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
-            console.log('exec error: ' + error);
+            console.log('exec error: ' + error);    
         }
     });
 
@@ -123,8 +164,11 @@ router.route('/reasoner')
     //     console.error(`child __runClingo__ stderr:\n${data}`);
     // });
 
-    res.json({message: 'access to reasoner!'});
-    
+    res.write(`Scenario finished. Restarting session....\n`);
+    res.write(`Previous sessionID:${req.sessionID}\n`);
+    newSession(req);
+    res.write(`New sessionID:${req.sessionID}\n`);
+    res.end();
 });
 
 
@@ -179,32 +223,64 @@ router.route('/controller')
 });
 
 
-function getCurSessionID() {
-    return sessionID;
-};
+///////////// Tell controller to return object labels and add some params needed to controller
+//// query params:  scenario,   step
+// --------------------------------------------------------------------------------------------
+router.route('/controller/getObjLabels')
+// (accessed at GET http://localhost:80/api/controller/getObjLabels?scenario=2&step=2)
+.get((req, res) => {
+    scenario = req.query.scenario;
+    step = req.query.step;
+
+    res.send("Scenario: " + scenario + "\t" + "Step: " + step);
+    console.log("------------Confirming correct params------------")
+    console.log("GET call to: " + req.path);
+    console.log("Scenario: " + scenario + "\t" + "Step: " + step);
+
+    // TODO: add messaging to controller
+
+});
+
+///////////// Tell controller to return action labels and add some params needed to controller
+//// query params:  scenario,   step
+// --------------------------------------------------------------------------------------------
+router.route('/controller/getActionLabels')
+// (accessed at GET http://localhost:80/api/controller/getActionLabels?scenario=2&step=2)
+.get((req, res) => {
+    scenario = req.query.scenario;
+    step = req.query.step;
+
+    res.send("Scenario: " + scenario + "\t" + "Step: " + step);
+    console.log("------------Confirming correct params------------");
+    console.log("GET call to: " + req.path);
+    console.log("Scenario: " + scenario + "\t" + "Step: " + step);
+
+    // TODO: add messaging to controller
+    
+});
 
 
 ///////// FOR TESTING PURPOSES - TO BE INTEGRATED ABOVE
-router.route('/controller/parseJson')
+router.route('/controller/parseJson/:fileName')
 // (accessed at GET http://localhost:80/api/controller/parseJson)
 .get((req, res) => {
-    // test function 
-    var curSession = getCurSessionID();
-    console.log("Current SessionID: ",curSession);
-
+    // test session 
+    console.log("req sessionID: ",req.sessionID);
 
     // this can only work once - require is synchronous, the calls receive a cached result
     // if the file is updated, it cannot be re-read
     // var jsonVision = require('./public/reasoner/jsonTest.json');
 
     // read json file, change a value and then re-write it
-    let rawdata = fs.readFileSync('./public/reasoner/jsonTest.json');
+    // let rawdata = fs.readFileSync(`./public/reasoner/jsonTest.json`);
+    let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}`);
     let controller = JSON.parse(rawdata);
     console.log(controller);
-    console.log("previous sessionid: ",controller.SessionId);
+    // update sessionID
+    controller.SessionId = req.sessionID;
 
     // add Scenario and Step tags at the start of the json file
-    var addToJson = {"Scenario":2,"Step":2};
+    var addToJson = {"Scenario":this.scenario,"Step":step};
     var newJson = Object.assign(addToJson, controller)
     console.log("new json: ",newJson);
     fs.writeFileSync('./public/reasoner/jsonTest.json',JSON.stringify(newJson,null,"\t"));

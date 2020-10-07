@@ -2,3 +2,7 @@
 There are several tools you can use to auto restart your Node server after every change 
 so you don’t have to deal with that. My preferred tool is Nodemon
 ---
+Session is very important for any web application. 
+Node.js allows us to create an HTTP server and HTTP is a stateless protocol. 
+It stores no information about previous visit and Express solves this problem very beautifully.
+---

@@ -1,4 +1,4 @@
-Reasoner Output - 02/10/2020 17:03:42
+Reasoner Output - 07/10/2020 11:46:45
 
 clingo version 5.4.0
 Reading from ./planner.lp
@@ -9,5 +9,5 @@ SATISFIABLE
 
 Models       : 1
 Calls        : 1
-Time         : 0.007s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
-CPU Time     : 0.016s
+Time         : 0.008s (Solving: 0.00s 1st Model: 0.00s Unsat: 0.00s)
+CPU Time     : 0.000s
