@@ -3,12 +3,13 @@
 // =============================================================================
 const express   = require('express');
 const app       = express();
+const path      = require('path');
 
 const fs        = require('fs');    // file system module
 const bodyParser= require('body-parser');
 const zmq       = require("zeromq");
 const session   = require('express-session'); // cookie-based session management
-const uuid      = require('uuid'); // generate random strings
+// const uuid      = require('uuid'); // generate random strings
 
 const port = process.env.port || 80
 const hostname = 'localhost'
@@ -18,45 +19,6 @@ var scenario, step;
 app.listen(port, hostname, () => {
     console.log(`Server is listening at    http://${hostname}:${port}/`)
 });
-
-// app.set('view engine', 'css')
-// all files inside public are static and available to the frontend
-app.use(express.static('public'));
-app.use(express.static('views'));   // may need to delete later
-
-// app.get('/', (req, res) => {
-//     console.log(req);
-//     const uniqueId = uuid();
-//     res.send('Hit home page! UniqueId: ',uniqueId);
-//     // res.sendFile(__dirname + '/oldindex.html')
-// });
-
-// Configuring body parser middleware
-// this will let us get the data from a POST
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// Since we are calling the API from different locations by hitting endpoints in the browser,
-// We also have to install the CORS middleware.
-const cors = require('cors')
-app.use(cors({origin: "http://localhost:80"}));
-// =============================================================================
-// ADD HEADERS - we don't need this because of using cors
-// =============================================================================
-// app.use(function(req,res,next) {
-//     // Website you wish to allow to connect
-//     res.setHeader('Access-Control-Allow-Origin', "http://localhost:80");
-//     // Request methods you wish to allow
-//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, FETCH");
-//     // Request headers to allow
-//     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
-//     // Set to true if you need the website to include cookies in the request 
-//     // sent to the API (eg. in case of using sessions)
-//     res.setHeader("Access-Control-Allow-Credentials", true);
-//     // Pass to next layer of middleware
-//     next();
-// });
-
 
 // =============================================================================
 // CONFIGURE SESSION AND COOKIES
@@ -82,11 +44,52 @@ app.use(session({
 
 // clear the entire session and start a new one
 function newSession(req) {
-    console.log("Before session regen. ID: ",req.sessionID);
+    console.log("Session regen about to happen.....");
     req.session.regenerate(function(err) {
         if (err) console.error("Couldn't regenerate session!"); 
+        else console.log("SessionID: ",req.sessionID);
     });
 }
+// END OF CONFIGURE SESSION
+// =============================================================================
+
+// app.set('view engine', 'css')
+// all files inside public are static and available to the frontend
+app.use(express.static('public'));
+// app.use(express.static('views'));   // may need to delete later
+
+app.get('/', (req, res) => {
+    console.log("/-/-/ Page Refreshed /-/-/");
+    newSession(req);
+    res.sendFile(path.join(__dirname+"/views/index.html"));
+});
+
+// Configuring body parser middleware
+// this will let us get the data from a POST
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+
+// Since we are calling the API from different locations by hitting endpoints in the browser,
+// We also have to install the CORS middleware.
+const cors = require('cors');
+// const { query } = require('express');
+app.use(cors({origin: "http://localhost:80"}));
+// =============================================================================
+// ADD HEADERS - we don't need this because of using cors
+// =============================================================================
+// app.use(function(req,res,next) {
+//     // Website you wish to allow to connect
+//     res.setHeader('Access-Control-Allow-Origin', "http://localhost:80");
+//     // Request methods you wish to allow
+//     res.setHeader("Access-Control-Allow-Methods", "GET, POST, FETCH");
+//     // Request headers to allow
+//     res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
+//     // Set to true if you need the website to include cookies in the request 
+//     // sent to the API (eg. in case of using sessions)
+//     res.setHeader("Access-Control-Allow-Credentials", true);
+//     // Pass to next layer of middleware
+//     next();
+// });
 
 // =============================================================================
 // ROUTES FOR OUR API
@@ -105,7 +108,7 @@ router.use(function(req, res, next) {
 router.get('/', function(req, res) {
     // test session
     // everytime the server is restarted, the sessionID changes
-    console.log(req.session.id);
+    console.log("---> API CALL\t",req.session.id);
     res.write(`<h1>Welcome to the API!</h1>`);
     res.write(`<h3>SessionID: ${req.sessionID}</h3>`);
     res.end();
@@ -164,10 +167,8 @@ router.route('/reasoner')
     //     console.error(`child __runClingo__ stderr:\n${data}`);
     // });
 
-    res.write(`Scenario finished. Restarting session....\n`);
-    res.write(`Previous sessionID:${req.sessionID}\n`);
-    newSession(req);
-    res.write(`New sessionID:${req.sessionID}\n`);
+    console.log("---> REASONER CALL\t", req.sessionID);
+    res.write(`sessionID:${req.sessionID}\n`);
     res.end();
 });
 
@@ -175,6 +176,7 @@ router.route('/reasoner')
 
 // CHECKING
 // on routes that end in /controller
+// used just for testing the zmq lib
 // ----------------------------------------------------
 router.route('/controller')
 // (accessed at GET http://localhost:80/api/controller)
@@ -192,7 +194,7 @@ router.route('/controller')
                 'Sender': "UI",
                 'Source': "-",
                 'Component': "-",
-                'SessionId': "-",
+                'SessionId': `${req.sessionID}`,
                 'Message': "Hello",
             };
             var jsonInit=JSON.stringify(jsonInitMessage);
@@ -259,8 +261,7 @@ router.route('/controller/getActionLabels')
     
 });
 
-
-///////// FOR TESTING PURPOSES - TO BE INTEGRATED ABOVE
+///////////// To be called to update file with sessionID, scenario and step
 router.route('/controller/parseJson/:fileName')
 // (accessed at GET http://localhost:80/api/controller/parseJson)
 .get((req, res) => {
@@ -273,18 +274,27 @@ router.route('/controller/parseJson/:fileName')
 
     // read json file, change a value and then re-write it
     // let rawdata = fs.readFileSync(`./public/reasoner/jsonTest.json`);
-    let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}`);
+    let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}.json`);
     let controller = JSON.parse(rawdata);
     console.log(controller);
     // update sessionID
     controller.SessionId = req.sessionID;
+    // controller.Sender = "UI";
 
     // add Scenario and Step tags at the start of the json file
-    var addToJson = {"Scenario":this.scenario,"Step":step};
+    if (controller.Scenario) controller.Scenario = scenario;
+    if (controller.Step) controller.Step = step;
+    var addToJson = {"Scenario": scenario,"Step": step};
     var newJson = Object.assign(addToJson, controller)
     console.log("new json: ",newJson);
-    fs.writeFileSync('./public/reasoner/jsonTest.json',JSON.stringify(newJson,null,"\t"));
+    fs.writeFileSync(`./public/reasoner/${req.params.fileName}.json`,JSON.stringify(newJson,null,2));
 
-    console.log("after the fs.readFileSync")
-    res.json({message: "done parsing json"});
+    // now copy json to txt file
+    fs.copyFile(`./public/reasoner/${req.params.fileName}.json`, 
+                `./public/reasoner/${req.params.fileName}.txt`, (err) => {
+        if (err) throw err;
+        console.log(`${req.params.fileName}.json was copied to ${req.params.fileName}.txt`);
+    });
+
+    res.json({message: `done parsing json. sessionid: ${req.sessionID}`});
 });
