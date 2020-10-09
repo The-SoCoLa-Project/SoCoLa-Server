@@ -6,6 +6,7 @@ const app       = express();
 const path      = require('path');
 
 const fs        = require('fs');    // file system module
+const readline  = require('readline');
 const bodyParser= require('body-parser');
 const zmq       = require("zeromq");
 const session   = require('express-session'); // cookie-based session management
@@ -181,47 +182,119 @@ router.route('/reasoner')
 router.route('/controller')
 // (accessed at GET http://localhost:80/api/controller)
 .get((req, res) => {
-    var print = "";
-    async function run() {
-        try{
-            const sock = new zmq.Reply;
-            await sock.bind("tcp://*:5556");
-            console.log("Producer bound to port 5556");
-            var [result] = await sock.receive();
-            var controllerReply=JSON.parse(result); 
-            console.log("Before init msg ",controllerReply);
-            var jsonInitMessage= {
-                'Sender': "UI",
-                'Source': "-",
-                'Component': "-",
-                'SessionId': `${req.sessionID}`,
-                'Message': "Hello",
-            };
-            var jsonInit=JSON.stringify(jsonInitMessage);
-            // both send() and receive() are blocking (by default)
-            await sock.send(jsonInit);
-            [result] = await sock.receive();
-            // var rawStr = result.toString("utf-8");
-            controllerReply=JSON.parse(result);
-            console.log("After 2nd receive ",controllerReply);
+    // var print = "";
+    // async function run() {
+    //     try{
+    //         const sock = new zmq.Reply;
+    //         await sock.bind("tcp://*:5556");
+    //         console.log("Producer bound to port 5556");
+    //         var [result] = await sock.receive();
+    //         var controllerReply=JSON.parse(result); 
+    //         console.log("Before init msg ",controllerReply);
+    //         var jsonInitMessage= {
+    //             'Sender': "UI",
+    //             'Source': "-",
+    //             'Component': "-",
+    //             'SessionId': `${req.sessionID}`,
+    //             'Message': "Hello",
+    //         };
+    //         var jsonInit=JSON.stringify(jsonInitMessage);
+    //         // both send() and receive() are blocking (by default)
+    //         await sock.send(jsonInit);
+    //         [result] = await sock.receive();
+    //         // var rawStr = result.toString("utf-8");
+    //         controllerReply=JSON.parse(result);
+    //         console.log("After 2nd receive ",controllerReply);
 
 
-            // save the received text into a file
-            // fs.writeFile('./public/reasoner/jsonIncomingMessage.json', print, function(err) {
-            //     if (err) return console.error(err);
-            //     console.log('json text received > jsonIncomingMessage.txt');
-            // });
+    //         // save the received text into a file
+    //         // fs.writeFile('./public/reasoner/jsonIncomingMessage.json', print, function(err) {
+    //         //     if (err) return console.error(err);
+    //         //     console.log('json text received > jsonIncomingMessage.txt');
+    //         // });
 
-        } catch(e) {
-            console.error(e);
-        }
-        res.json({message: "connection with controller established"});
+    //     } catch(e) {
+    //         console.error(e);
+    //     }
+    //     res.json({message: "connection with controller established"});
 
-        // console.log('Received ',print);
-        // res.json({message: print});
+    //     // console.log('Received ',print);
+    //     // res.json({message: print});
         
+    // }
+    // run();
+
+
+    ///////////////////////////////////////////////////////////////////
+    //// CONNECTION TO CONTROLLER
+    ///////////////////////////////////////////////////////////////////
+    function askForOption(query) {
+        const rl = readline.createInterface({
+            input: process.stdin,
+            output: process.stdout,
+        });
+
+        return new Promise(resolve => rl.question(query, ans => {
+            rl.close();
+            resolve(ans);
+        }))
     }
-    run();
+
+    const puller = new zmq.Pull;
+    puller.connect("tcp://139.91.185.14:5556");
+
+    const pusher = new zmq.Push;
+    // NEED THE * TO BYPASS THE WINDOWS FIREWALL!
+    pusher.bind("tcp://*:5566");
+    console.log("Producer bound to port 5556");
+
+
+    // send messages
+    async function thread1() {
+        // sessionId=1
+        while(true){
+            try{
+                const option = await askForOption("Select option (Numbers 1 to 3): ");
+                let rawdata = fs.readFileSync(`json_UI_example_${option}.json`);
+                let json_msg = JSON.parse(rawdata)
+                json_msg['SessionId']=req.sessionID;
+         
+                await pusher.send(JSON.stringify(json_msg));
+
+                // sessionId=sessionId+1
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+    }
+
+    // receive messages
+    async function thread2() {
+        while(true){
+            try{
+                const [raw_msg]=await puller.receive(); 
+                json_msg = JSON.parse(raw_msg);
+
+                if(json_msg["Source"].includes("Vision")){
+                    console.log("Observer Labels:");
+                    console.log(json_msg);
+                }
+        
+                if(json_msg["Source"].includes("KB")){
+                    console.log("Inferred Labels:");
+                    console.log(json_msg);
+                }  
+            } catch(e) {
+                console.error(e);
+            }
+        }
+    }
+
+    thread1();
+    thread2();
+
+    res.json({message: `connection with controller established      sessionID: ${req.sessionID}`});
 });
 
 
