@@ -50,6 +50,11 @@ const getObjlabels = () => $.get(`./api/controller/getObjLabels?scenario=${scena
     console.log("Scenario: " + scenario + "\t" + "Step: " + step);
     console.log("Object Labels received!");
 });
+////////////////// jQuery call to the function that updates json file
+const updateJson = (filename) => $.get(`./api/controller/parseJson/${filename}`)
+.done(function(){
+    console.log(`${filename} file updated!`);
+});
 document.getElementById('captureObj').addEventListener('click', function() {
     var msg = document.getElementById('interactionMsg');
     msg.style.visibility = "visible";
@@ -175,13 +180,6 @@ document.getElementById('captureAction').addEventListener('click', function() {
         }
     }
 })
-
-
-////////////////// jQuery call to the function that updates json file
-const updateJson = (filename) => $.get(`./api/controller/parseJson/${filename}`)
-.done(function(){
-    console.log(`${filename} file updated!`);
-});
 
 
 ////////////////// what happens when the Hidden Action btn is clicked

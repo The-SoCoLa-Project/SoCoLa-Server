@@ -134,7 +134,7 @@ function runClingo(req, res) {
 
     res.write(`Access to reasoner...\n`);
     child = exec(shellCode, {cwd:".\\public\\reasoner"}, function(error, stdout, stderr) {
-        console.log('-------------------\nstdout: \n' + stdout);
+        // console.log('-------------------\nstdout: \n' + stdout);
         console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
             console.log('exec error: ' + error);    
