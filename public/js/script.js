@@ -84,17 +84,38 @@ document.getElementById('captureObj').addEventListener('click', function() {
         } else {
             getObjlabels().done(function(){ // after the call to the controller is finished
                 var visionFile = document.getElementById('visionFileText');
-                visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                var reasonerResult = document.getElementById('reasonerFileText');
     
                 msg.style.color = "#5DA85D";
                 msg.textContent = `Object captured. Step ${step} is done!`;
 
                 if (scenario == 1) {
-                    msg.textContent += ` Now capture the action!`;
+                    // run clingo to get predictions (Scenario 1)
+                    updateJson("jsonIncomingMessage").done(function(){
+                        // load the file after it has been updated
+                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        execJar().done(function(){
+                            // first run the jar, then load the file
+                            reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                            msg.textContent += " Now capture the action!";
+                        });
+                    });
                 } else if (scenario == 2 && step == 1) {
-                    msg.textContent += ` Do a hidden action and capture object again!`;
-                } else {  // scenario==2 && step==2
-                    msg.textContent += ` This scenario is finished!`;
+                    updateJson("jsonIncomingMessage").done(function(){
+                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        msg.textContent += ` Do a hidden action and capture object again!`;
+                    });
+                } else  {  // scenario==2 && step==2
+                    // run clingo to get action sequence (Scenario 2)
+                    updateJson("jsonIncomingMessage").done(function(){
+                        // load the file after it has been updated
+                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        execJar().done(function(){
+                            // first run the jar, then load the file
+                            reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                            msg.textContent += " This scenario is finished!";
+                        });
+                    });
                     sessionDone = true;
                 }
     
@@ -121,6 +142,9 @@ const getActionLabels = () => $.get(`./api/controller/getActionLabels?scenario=$
 });
 document.getElementById('captureAction').addEventListener('click', function() {
     var msg = document.getElementById('interactionMsg');
+    var visionFile = document.getElementById('visionFileText');
+    var reasonerResult = document.getElementById('reasonerFileText');
+
     msg.style.visibility = "visible";
     
     if (sessionDone) {
@@ -140,9 +164,7 @@ document.getElementById('captureAction').addEventListener('click', function() {
                 getActionLabels()
                 // first do this after call to api
                 .then(function(){
-                    var visionFile = document.getElementById('visionFileText');
                     visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
-
                     msg.style.visibility = "visible";
                     msg.style.color = "#5DA85D";
                     msg.textContent = `Action captured! Step ${step} is done!`;
@@ -154,7 +176,6 @@ document.getElementById('captureAction').addEventListener('click', function() {
                     updateJson("jsonIncomingMessage").done(function(){
                         execJar().done(function(){
                             // first run the jar, then load the file
-                            var reasonerResult = document.getElementById('reasonerFileText');
                             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
                             msg.textContent += " Clingo run successfully! Scenario finished!";
                             sessionDone = true;

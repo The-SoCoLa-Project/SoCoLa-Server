@@ -1,10 +1,10 @@
 {
-  "Scenario": "1",
+  "Scenario": "2",
   "Step": "2",
   "Sender": "Controller",
   "Source": "Vision",
   "Component": "ObjectDetector",
-  "SessionId": "0ufCxaSlDMnBhWihUDANcb5nxJokkmqk",
+  "SessionId": "stoPdFRoE3ebuYAhnRPXdwydWGnGFEwl",
   "Message": [
     [
       "bottle",

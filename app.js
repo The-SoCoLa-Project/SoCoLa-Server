@@ -122,14 +122,12 @@ router.get('/', function(req, res) {
 app.use('/api', router);
 
 
+///////////////////////////////////////////////////////////////////
+//// EXECUTING REASONER
+///////////////////////////////////////////////////////////////////
 // GET call to exec a jar file when a button is clicked
 // upon request to the path, do the system call
-
-// on routes that end in /reasoner
-// ----------------------------------------------------
-router.route('/reasoner')
-// (accessed at post http://localhost:80/api/reasoner)
-.get((req, res) => {
+function runClingo(req, res) {
     var exec = require('child_process').exec, child;
     var shellCode = `java -jar .\\SocReasonerv1_3.jar`;
     console.log("JAR: ",shellCode)
@@ -171,6 +169,14 @@ router.route('/reasoner')
     console.log("---> REASONER CALL\t", req.sessionID);
     res.write(`sessionID:${req.sessionID}\n`);
     res.end();
+}
+
+// on routes that end in /reasoner
+// ----------------------------------------------------
+router.route('/reasoner')
+// (accessed at post http://localhost:80/api/reasoner)
+.get((req, res) => {
+    runClingo(req,res);
 });
 
 
