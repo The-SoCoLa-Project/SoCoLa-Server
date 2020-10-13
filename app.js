@@ -340,24 +340,13 @@ router.route('/controller/getActionLabels')
     
 });
 
-///////////// To be called to update file with sessionID, scenario and step
-router.route('/controller/parseJson/:fileName')
-// (accessed at GET http://localhost:80/api/controller/parseJson)
-.get((req, res) => {
-    // test session 
-    console.log("req sessionID: ",req.sessionID);
-
-    // this can only work once - require is synchronous, the calls receive a cached result
-    // if the file is updated, it cannot be re-read
-    // var jsonVision = require('./public/reasoner/jsonTest.json');
-
+function writeFile(fileName, sessionID) {
     // read json file, change a value and then re-write it
-    // let rawdata = fs.readFileSync(`./public/reasoner/jsonTest.json`);
-    let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}.json`);
+    let rawdata = fs.readFileSync(`./public/reasoner/${fileName}.json`);
     let controller = JSON.parse(rawdata);
     console.log(controller);
     // update sessionID
-    controller.SessionId = req.sessionID;
+    controller.SessionId = sessionID;
     // controller.Sender = "UI";
 
     // add Scenario and Step tags at the start of the json file
@@ -366,14 +355,51 @@ router.route('/controller/parseJson/:fileName')
     var addToJson = {"Scenario": scenario,"Step": step};
     var newJson = Object.assign(addToJson, controller)
     console.log("new json: ",newJson);
-    fs.writeFileSync(`./public/reasoner/${req.params.fileName}.json`,JSON.stringify(newJson,null,2));
+    fs.writeFileSync(`./public/reasoner/${fileName}.json`,JSON.stringify(newJson,null,2));
 
     // now copy json to txt file
-    fs.copyFile(`./public/reasoner/${req.params.fileName}.json`, 
-                `./public/reasoner/${req.params.fileName}.txt`, (err) => {
+    fs.copyFile(`./public/reasoner/${fileName}.json`, 
+                `./public/reasoner/${fileName}.txt`, (err) => {
         if (err) throw err;
-        console.log(`${req.params.fileName}.json was copied to ${req.params.fileName}.txt`);
+        console.log(`${fileName}.json was copied to ${fileName}.txt`);
     });
+}
+
+///////////// To be called to update file with sessionID, scenario and step
+router.route('/controller/parseJson/:fileName')
+// (accessed at GET http://localhost:80/api/controller/parseJson)
+.get((req, res) => {
+    // test session 
+    console.log("req sessionID: ",req.sessionID);
+
+    writeFile(req.params.fileName, req.sessionID);
+    // this can only work once - require is synchronous, the calls receive a cached result
+    // if the file is updated, it cannot be re-read
+    // var jsonVision = require('./public/reasoner/jsonTest.json');
+
+    // read json file, change a value and then re-write it
+    // let rawdata = fs.readFileSync(`./public/reasoner/jsonTest.json`);
+    // let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}.json`);
+    // let controller = JSON.parse(rawdata);
+    // console.log(controller);
+    // // update sessionID
+    // controller.SessionId = req.sessionID;
+    // // controller.Sender = "UI";
+
+    // // add Scenario and Step tags at the start of the json file
+    // if (controller.Scenario) controller.Scenario = scenario;
+    // if (controller.Step) controller.Step = step;
+    // var addToJson = {"Scenario": scenario,"Step": step};
+    // var newJson = Object.assign(addToJson, controller)
+    // console.log("new json: ",newJson);
+    // fs.writeFileSync(`./public/reasoner/${req.params.fileName}.json`,JSON.stringify(newJson,null,2));
+
+    // // now copy json to txt file
+    // fs.copyFile(`./public/reasoner/${req.params.fileName}.json`, 
+    //             `./public/reasoner/${req.params.fileName}.txt`, (err) => {
+    //     if (err) throw err;
+    //     console.log(`${req.params.fileName}.json was copied to ${req.params.fileName}.txt`);
+    // });
 
     res.json({message: `done parsing json. sessionid: ${req.sessionID}`});
 });

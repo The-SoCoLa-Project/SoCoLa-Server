@@ -38,17 +38,6 @@ const execJar = () => $.get("./api/reasoner/")
 .done(function(){
     console.log("child process finished");
 });
-// document.getElementById('runClingo').addEventListener('click', function() {
-//     execJar().done(function(){
-//         // first run the jar, then load the file
-//         var reasonerResult = document.getElementById('reasonerFileText');
-//         reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
-//         var msg = document.getElementById('interactionMsg');
-//         msg.style.visibility = "visible";
-//         msg.style.color = "#5DA85D";
-//         msg.textContent = "Clingo has run successfully!";
-//     });
-// })
 
 ////////////////// what happens when the Capture Obj btn is clicked
 // STEPS TO TAKE:
