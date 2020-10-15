@@ -11,6 +11,7 @@ const bodyParser= require('body-parser');
 const zmq       = require("zeromq");
 const session   = require('express-session'); // cookie-based session management
 // const uuid      = require('uuid'); // generate random strings
+const stringify = require('json-stringify-pretty-compact');
 
 const port = process.env.port || 80
 const hostname = 'localhost'
@@ -63,6 +64,16 @@ app.get('/', (req, res) => {
     console.log("/-/-/ Page Refreshed /-/-/");
     newSession(req);
     res.sendFile(path.join(__dirname+"/views/index.html"));
+
+    // clear the files because inside session we append
+    // fs.writeFile(`./public/controller/vision_ObservedLabels.json`,"", function(err) {
+    fs.writeFile(`./public/reasoner/vision_ObservedLabels.json`,"", function(err) {
+        if (err) console.error(err + ": Couldn't clear file vision_ObservedLabels.json");
+    });
+    // fs.writeFile(`./public/controller/kb_InferredLabels.json`,"", function(err) {
+    fs.writeFile(`./public/reasoner/kb_InferredLabels.json`,"", function(err) {
+        if (err) console.error(err + ": Couldn't clear file kb_InferredLabels.json");
+    });
 });
 
 // Configuring body parser middleware
@@ -188,58 +199,21 @@ router.route('/reasoner')
 router.route('/controller')
 // (accessed at GET http://localhost:80/api/controller)
 .get((req, res) => {
-    // var print = "";
-    // async function run() {
-    //     try{
-    //         const sock = new zmq.Reply;
-    //         await sock.bind("tcp://*:5556");
-    //         console.log("Producer bound to port 5556");
-    //         var [result] = await sock.receive();
-    //         var controllerReply=JSON.parse(result); 
-    //         console.log("Before init msg ",controllerReply);
-    //         var jsonInitMessage= {
-    //             'Sender': "UI",
-    //             'Source': "-",
-    //             'Component': "-",
-    //             'SessionId': `${req.sessionID}`,
-    //             'Message': "Hello",
-    //         };
-    //         var jsonInit=JSON.stringify(jsonInitMessage);
-    //         // both send() and receive() are blocking (by default)
-    //         await sock.send(jsonInit);
-    //         [result] = await sock.receive();
-    //         // var rawStr = result.toString("utf-8");
-    //         controllerReply=JSON.parse(result);
-    //         console.log("After 2nd receive ",controllerReply);
+    speakWithController(req);
+    
+    res.json({message: `connection with controller established      sessionID: ${req.sessionID}`});
+});
 
-
-    //         // save the received text into a file
-    //         // fs.writeFile('./public/reasoner/jsonIncomingMessage.json', print, function(err) {
-    //         //     if (err) return console.error(err);
-    //         //     console.log('json text received > jsonIncomingMessage.txt');
-    //         // });
-
-    //     } catch(e) {
-    //         console.error(e);
-    //     }
-    //     res.json({message: "connection with controller established"});
-
-    //     // console.log('Received ',print);
-    //     // res.json({message: print});
-        
-    // }
-    // run();
-
-
-    ///////////////////////////////////////////////////////////////////
-    //// CONNECTION TO CONTROLLER
-    ///////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////
+//// CONNECTION TO CONTROLLER
+///////////////////////////////////////////////////////////////////
+function speakWithController(req) {
+    
     function askForOption(query) {
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout,
         });
-
         return new Promise(resolve => rl.question(query, ans => {
             rl.close();
             resolve(ans);
@@ -254,10 +228,8 @@ router.route('/controller')
     pusher.bind("tcp://*:5566");
     console.log("Producer bound to port 5556");
 
-
     // send messages
     async function thread1() {
-        // sessionId=1
         while(true){
             try{
                 const option = await askForOption("Select option (Numbers 1 to 3): ");
@@ -266,13 +238,8 @@ router.route('/controller')
                 json_msg['SessionId']=req.sessionID;
          
                 await pusher.send(JSON.stringify(json_msg));
-
-                // sessionId=sessionId+1
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
-
     }
 
     // receive messages
@@ -284,24 +251,24 @@ router.route('/controller')
 
                 if(json_msg["Source"].includes("Vision")){
                     console.log("Observer Labels:");
+                    writeFile("vision_ObservedLabels",json_msg.Message, req.sessionID,true);
                     console.log(json_msg);
                 }
         
                 if(json_msg["Source"].includes("KB")){
                     console.log("Inferred Labels:");
+                    writeFile("kb_InferredLabels", json_msg.Message, req.sessionID,true);
                     console.log(json_msg);
                 }  
-            } catch(e) {
-                console.error(e);
-            }
+            } catch(e) { console.error(e); }
         }
     }
 
     thread1();
     thread2();
 
-    res.json({message: `connection with controller established      sessionID: ${req.sessionID}`});
-});
+}
+
 
 
 ///////////// Tell controller to return object labels and add some params needed to controller
@@ -326,7 +293,7 @@ router.route('/controller/getObjLabels')
 //// query params:  scenario,   step
 // --------------------------------------------------------------------------------------------
 router.route('/controller/getActionLabels')
-// (accessed at GET http://localhost:80/api/controller/getActionLabels?scenario=2&step=2)
+// (accessed at GET http://localhost:80/api/controller/getActionLabels?scenario=INT&step=INT)
 .get((req, res) => {
     scenario = req.query.scenario;
     step = req.query.step;
@@ -340,24 +307,28 @@ router.route('/controller/getActionLabels')
     
 });
 
-function writeFile(fileName, sessionID) {
-    // read json file, change a value and then re-write it
-    let rawdata = fs.readFileSync(`./public/reasoner/${fileName}.json`);
-    let controller = JSON.parse(rawdata);
-    console.log(controller);
-    // update sessionID
-    controller.SessionId = sessionID;
-    // controller.Sender = "UI";
+function writeFile(fileName, text, sessionID, appendFile) {
+    if (appendFile) {
+        fs.appendFileSync(`./public/reasoner/${fileName}.json`,stringify(text,null,2));
+    } else {
+        // read json file and update scenario, step and sessionid
+        let rawdata = fs.readFileSync(`./public/reasoner/${fileName}.json`);
+        let controller = JSON.parse(rawdata);
+        console.log(controller);
+        // update sessionID
+        controller.SessionId = sessionID;
 
-    // add Scenario and Step tags at the start of the json file
-    if (controller.Scenario) controller.Scenario = scenario;
-    if (controller.Step) controller.Step = step;
-    var addToJson = {"Scenario": scenario,"Step": step};
-    var newJson = Object.assign(addToJson, controller)
-    console.log("new json: ",newJson);
-    fs.writeFileSync(`./public/reasoner/${fileName}.json`,JSON.stringify(newJson,null,2));
+        // add Scenario and Step tags at the start of the json file
+        if (controller.Scenario) controller.Scenario = scenario;
+        if (controller.Step) controller.Step = step;
+        var addToJson = {"Scenario": scenario,"Step": step};
+        var newJson = Object.assign(addToJson, controller)
+        console.log("new json: ",newJson);
 
-    // now copy json to txt file
+        fs.writeFileSync(`./public/reasoner/${fileName}.json`,stringify(newJson,null,2));
+    }
+
+    // now copy json to txt file (only needed for the jsonIncomingMessage file)
     fs.copyFile(`./public/reasoner/${fileName}.json`, 
                 `./public/reasoner/${fileName}.txt`, (err) => {
         if (err) throw err;
@@ -372,34 +343,7 @@ router.route('/controller/parseJson/:fileName')
     // test session 
     console.log("req sessionID: ",req.sessionID);
 
-    writeFile(req.params.fileName, req.sessionID);
-    // this can only work once - require is synchronous, the calls receive a cached result
-    // if the file is updated, it cannot be re-read
-    // var jsonVision = require('./public/reasoner/jsonTest.json');
-
-    // read json file, change a value and then re-write it
-    // let rawdata = fs.readFileSync(`./public/reasoner/jsonTest.json`);
-    // let rawdata = fs.readFileSync(`./public/reasoner/${req.params.fileName}.json`);
-    // let controller = JSON.parse(rawdata);
-    // console.log(controller);
-    // // update sessionID
-    // controller.SessionId = req.sessionID;
-    // // controller.Sender = "UI";
-
-    // // add Scenario and Step tags at the start of the json file
-    // if (controller.Scenario) controller.Scenario = scenario;
-    // if (controller.Step) controller.Step = step;
-    // var addToJson = {"Scenario": scenario,"Step": step};
-    // var newJson = Object.assign(addToJson, controller)
-    // console.log("new json: ",newJson);
-    // fs.writeFileSync(`./public/reasoner/${req.params.fileName}.json`,JSON.stringify(newJson,null,2));
-
-    // // now copy json to txt file
-    // fs.copyFile(`./public/reasoner/${req.params.fileName}.json`, 
-    //             `./public/reasoner/${req.params.fileName}.txt`, (err) => {
-    //     if (err) throw err;
-    //     console.log(`${req.params.fileName}.json was copied to ${req.params.fileName}.txt`);
-    // });
+    writeFile(req.params.fileName, "", req.sessionID, false);   // true for append
 
     res.json({message: `done parsing json. sessionid: ${req.sessionID}`});
 });

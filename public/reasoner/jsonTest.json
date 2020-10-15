@@ -1,33 +1,4 @@
-{
-	"Scenario": 2,
-	"Step": 2,
-	"Sender": "Controller",
-	"Source": "Vision",
-	"SessionId": "1ptupgQMYIMJZaqFwNqdC_n05gV3zs16",
-	"Message": [
-		[
-			"bottle",
-			0.67,
-			[
-				[
-					"open",
-					0.5
-				],
-				[
-					"empty",
-					0.32
-				]
-			]
-		],
-		[
-			"phone",
-			0.47,
-			[
-				[
-					"connected",
-					0.5
-				]
-			]
-		]
-	]
-}
+[
+  ["bottle", 0.67, [["open", 0.5], ["empty", 0.32]]],
+  ["phone", 0.47, [["connected", 0.5]]]
+]

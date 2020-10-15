@@ -167,3 +167,8 @@ section#top {
     box-shadow: 0 20px 80px rgba(0,0,0,.6); 
     align-items: flex-start;
 }
+
+.chatbot {
+    height: 100%;
+    width: 100%;
+}

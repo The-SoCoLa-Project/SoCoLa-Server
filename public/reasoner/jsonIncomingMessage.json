@@ -1,34 +1,12 @@
 {
-  "Scenario": "2",
+  "Scenario": "1",
   "Step": "2",
   "Sender": "Controller",
   "Source": "Vision",
   "Component": "ObjectDetector",
-  "SessionId": "7ne5YZ_cmFOoELj792pFXq1w2cmhEm1D",
+  "SessionId": "h_nissyKH6CWAe0MoHXYByaaYaj83cpw",
   "Message": [
-    [
-      "bottle",
-      0.67,
-      [
-        [
-          "open",
-          0.5
-        ],
-        [
-          "empty",
-          0.32
-        ]
-      ]
-    ],
-    [
-      "phone",
-      0.47,
-      [
-        [
-          "connected",
-          0.5
-        ]
-      ]
-    ]
+    ["bottle", 0.67, [["open", 0.5], ["empty", 0.32]]],
+    ["phone", 0.47, [["connected", 0.5]]]
   ]
 }

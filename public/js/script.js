@@ -78,16 +78,20 @@ document.getElementById('captureObj').addEventListener('click', function() {
         } else {
             getObjlabels().done(function(){ // after the call to the controller is finished
                 var visionFile = document.getElementById('visionFileText');
+                var kbFile = document.getElementById('graphGenFileText');
                 var reasonerResult = document.getElementById('reasonerFileText');
     
                 msg.style.color = "#5DA85D";
                 msg.textContent = `Object captured. Step ${step} is done!`;
 
                 if (scenario == 1) {
+                    // on the 2nd scenario, we don't receive any inferred labels
+                    kbFile.setAttribute('data', '/controller/kb_InferredLabels.json');
                     // run clingo to get predictions (Scenario 1)
                     updateJson("jsonIncomingMessage").done(function(){
                         // load the file after it has been updated
-                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                        // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
                         execJar().done(function(){
                             // first run the jar, then load the file
                             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
@@ -96,14 +100,15 @@ document.getElementById('captureObj').addEventListener('click', function() {
                     });
                 } else if (scenario == 2 && step == 1) {
                     updateJson("jsonIncomingMessage").done(function(){
-                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
                         msg.textContent += ` Do a hidden action and capture object again!`;
                     });
                 } else  {  // scenario==2 && step==2
                     // run clingo to get action sequence (Scenario 2)
                     updateJson("jsonIncomingMessage").done(function(){
                         // load the file after it has been updated
-                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                        visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                        // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
                         execJar().done(function(){
                             // first run the jar, then load the file
                             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
@@ -118,6 +123,7 @@ document.getElementById('captureObj').addEventListener('click', function() {
                     objCaptured = true;
                 } 
                 step++;
+                // visionFile.setAttribute('data', '/controller/vision_ObservedLabels.txt');
             });
         }
     }
@@ -137,6 +143,7 @@ const getActionLabels = () => $.get(`./api/controller/getActionLabels?scenario=$
 document.getElementById('captureAction').addEventListener('click', function() {
     var msg = document.getElementById('interactionMsg');
     var visionFile = document.getElementById('visionFileText');
+    var kbFile = document.getElementById('graphGenFileText');
     var reasonerResult = document.getElementById('reasonerFileText');
 
     msg.style.visibility = "visible";
@@ -158,7 +165,9 @@ document.getElementById('captureAction').addEventListener('click', function() {
                 getActionLabels()
                 // first do this after call to api
                 .then(function(){
-                    visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.txt');
+                    visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                    // kbFile.setAttribute('data', '/controller/kb_InferredLabels.txt');
+                    // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
                     msg.style.visibility = "visible";
                     msg.style.color = "#5DA85D";
                     msg.textContent = `Action captured! Step ${step} is done!`;
