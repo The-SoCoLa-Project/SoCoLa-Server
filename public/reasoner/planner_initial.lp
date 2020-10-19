@@ -1,2 +1,2 @@
-holdsAt(currentState(bottle, open), 0).
-holdsAt(currentState(bottle, empty), 0).
+holdsAt(currentState(bottle, opened), 0).
+holdsAt(currentState(bottle, unfilled), 0).

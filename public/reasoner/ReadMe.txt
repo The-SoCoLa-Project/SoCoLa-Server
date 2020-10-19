@@ -23,7 +23,7 @@ This happens only once, at training time, not at run-time
 Step 1. Write the json message received from Vision in the file "jsonIncomingMessage.txt"
 
 Step 2. Make sure the json message also contains the entries 
-"Scenario": 2, "Step" : 2,
+"Scenario": ΧΧ, "Step" : ΥΥ,
 BEFORE the message tag
 
 Step 3. Run the jar

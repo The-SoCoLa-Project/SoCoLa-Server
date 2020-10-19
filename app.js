@@ -13,8 +13,8 @@ const session   = require('express-session'); // cookie-based session management
 // const uuid      = require('uuid'); // generate random strings
 const stringify = require('json-stringify-pretty-compact');
 
-const port = process.env.port || 80
-const hostname = 'localhost'
+const port = process.env.port || 443;
+const hostname = '139.91.183.118';
 
 var scenario, step;
 
@@ -67,13 +67,13 @@ app.get('/', (req, res) => {
 
     // clear the files because inside session we append
     // fs.writeFile(`./public/controller/vision_ObservedLabels.json`,"", function(err) {
-    fs.writeFile(`./public/reasoner/vision_ObservedLabels.json`,"", function(err) {
-        if (err) console.error(err + ": Couldn't clear file vision_ObservedLabels.json");
-    });
+    // fs.writeFile(`./public/reasoner/vision_ObservedLabels.json`,"", function(err) {
+    //     if (err) console.error(err + ": Couldn't clear file vision_ObservedLabels.json");
+    // });
     // fs.writeFile(`./public/controller/kb_InferredLabels.json`,"", function(err) {
-    fs.writeFile(`./public/reasoner/kb_InferredLabels.json`,"", function(err) {
-        if (err) console.error(err + ": Couldn't clear file kb_InferredLabels.json");
-    });
+    // fs.writeFile(`./public/reasoner/kb_InferredLabels.json`,"", function(err) {
+    //     if (err) console.error(err + ": Couldn't clear file kb_InferredLabels.json");
+    // });
 });
 
 // Configuring body parser middleware
@@ -85,7 +85,7 @@ app.use(bodyParser.json());
 // We also have to install the CORS middleware.
 const cors = require('cors');
 // const { query } = require('express');
-app.use(cors({origin: "http://localhost:80"}));
+app.use(cors({origin: "http://139.91.183.118:443"}));
 // =============================================================================
 // ADD HEADERS - we don't need this because of using cors
 // =============================================================================
@@ -116,7 +116,7 @@ router.use(function(req, res, next) {
     next(); // make sure we go to the next routes and don't stop here
 });
 
-// test router (accessed at GET http://localhost:80/api)
+// test router (accessed at GET http://139.91.183.118:443/api)
 router.get('/', function(req, res) {
     // test session
     // everytime the server is restarted, the sessionID changes
@@ -185,7 +185,7 @@ function runClingo(req, res) {
 // on routes that end in /reasoner
 // ----------------------------------------------------
 router.route('/reasoner')
-// (accessed at post http://localhost:80/api/reasoner)
+// (accessed at post http://139.91.183.118:443/api/reasoner)
 .get((req, res) => {
     runClingo(req,res);
 });

@@ -15,6 +15,7 @@
 %detectedObjState(1,knife, carring, after).
 
 
+
 %%%% Fluent Definitions
 fluent(currentState(Obj, State)) :-
    detectedObjState(_, Obj, State, _).
@@ -23,7 +24,7 @@ fluent(currentState(Obj, State)) :-
 
 %%%% Event Definitions
 event(Action) :-
-   detectedAction(_, Action, _).
+   detectedAction(_, Action, Obj).
 
 
 
@@ -32,6 +33,10 @@ event(Action) :-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 #include "planner_initial.lp".
+
+observed(Obj) :-
+   holdsAt(currentState(Obj, _), 0).
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -43,12 +48,14 @@ event(Action) :-
 
 
 initiates(Action, currentState(Obj, State), t) :-
-   detectedAction(ID, Action, _),
-   detectedObjState(ID, Obj, State, after).
+   detectedAction(ID, Action, Obj),
+   detectedObjState(ID, Obj, State, after),
+   observed(Obj).
 
 terminates(Action, currentState(Obj, State), t) :-
    detectedObjState(ID, Obj, State, before),
-   detectedAction(ID, Action, _),
+   detectedAction(ID, Action, Obj),
+   observed(Obj),
    not detectedObjState(ID, Obj, State, after).
 
 
@@ -87,16 +94,20 @@ holdsAt(F,t) :-
 %goalAchieved(t) :- holdsAt(currentState(knife,carring),t).
 #include "planner_goal.lp".
 
-:- query(t),not goalAchieved(t).
+
+%:- query(t), not goalAchieved(t).
 
 
 % Do not change this part
 % No action should happen at the last timepoint nor should you hold an object
-:- query(t), happens(E,t), event(E).
+%:- query(t), happens(E,t), event(E).
 
 % Stop planning after 4 steps
-a :- holdsAt(_,4).
--a :- holdsAt(_,4).
+%a :- holdsAt(_,4).
+%-a :- holdsAt(_,4).
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 #show holdsAt/2.
