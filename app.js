@@ -140,11 +140,11 @@ app.use('/api', router);
 // upon request to the path, do the system call
 function runClingo(req, res) {
     var exec = require('child_process').exec, child;
-    var shellCode = `java -jar .\\SocReasonerv1_3.jar`;
+    var shellCode = `java -jar .\\SocReasonerv1_4.jar`;
     console.log("JAR: ",shellCode)
 
     res.write(`Access to reasoner...\n`);
-    child = exec(shellCode, {cwd:".\\public\\reasoner"}, function(error, stdout, stderr) {
+    child = exec(shellCode, {cwd:path.join(__dirname+"/public/reasoner")}, function(error, stdout, stderr) {
         // console.log('-------------------\nstdout: \n' + stdout);
         console.log('-------------------\nstderr: \n' + stderr);
         if(error !== null) {
@@ -275,7 +275,7 @@ function speakWithController(req) {
 //// query params:  scenario,   step
 // --------------------------------------------------------------------------------------------
 router.route('/controller/getObjLabels')
-// (accessed at GET http://localhost:80/api/controller/getObjLabels?scenario=2&step=2)
+// (accessed at GET http://139.91.183.118:443/api/controller/getObjLabels?scenario=2&step=2)
 .get((req, res) => {
     scenario = req.query.scenario;
     step = req.query.step;
@@ -287,13 +287,22 @@ router.route('/controller/getObjLabels')
 
     // TODO: add messaging to controller
 
+
+    // async function updateFileANDrunClingo() {
+    //     await writeFile("jsonIncomingMessage","", req.sessionID, false);
+    //     if (scenario==1 || (scenario==2 && step==2)) {
+    //         await runClingo(req, res);
+    //     }
+    // }
+    // updateFileANDrunClingo();
+
 });
 
 ///////////// Tell controller to return action labels and add some params needed to controller
 //// query params:  scenario,   step
 // --------------------------------------------------------------------------------------------
 router.route('/controller/getActionLabels')
-// (accessed at GET http://localhost:80/api/controller/getActionLabels?scenario=INT&step=INT)
+// (accessed at GET http://139.91.183.118:443/api/controller/getActionLabels?scenario=INT&step=INT)
 .get((req, res) => {
     scenario = req.query.scenario;
     step = req.query.step;
@@ -329,16 +338,16 @@ function writeFile(fileName, text, sessionID, appendFile) {
     }
 
     // now copy json to txt file (only needed for the jsonIncomingMessage file)
-    fs.copyFile(`./public/reasoner/${fileName}.json`, 
-                `./public/reasoner/${fileName}.txt`, (err) => {
-        if (err) throw err;
-        console.log(`${fileName}.json was copied to ${fileName}.txt`);
-    });
+    if (fileName == "jsonIncomingMessage") {
+        fs.copyFileSync(`./public/reasoner/${fileName}.json`, 
+                    `./public/reasoner/${fileName}.txt`);
+        console.log(`${fileName}.json copied into ${fileName}.txt`);
+    }
 }
 
 ///////////// To be called to update file with sessionID, scenario and step
 router.route('/controller/parseJson/:fileName')
-// (accessed at GET http://localhost:80/api/controller/parseJson)
+// (accessed at GET http://139.91.183.118:443/api/controller/parseJson)
 .get((req, res) => {
     // test session 
     console.log("req sessionID: ",req.sessionID);

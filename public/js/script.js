@@ -36,7 +36,7 @@ const execJar = () => $.get("./api/reasoner/")
     console.error("jQuery GET, failed to get reasoner");
 })
 .done(function(){
-    console.log("child process finished");
+    console.log("child process finished - clingo run successfully!");
 });
 
 ////////////////// what happens when the Capture Obj btn is clicked
@@ -84,39 +84,77 @@ document.getElementById('captureObj').addEventListener('click', function() {
                 msg.style.color = "#5DA85D";
                 msg.textContent = `Object captured. Step ${step} is done!`;
 
-                if (scenario == 1) {
-                    // on the 2nd scenario, we don't receive any inferred labels
-                    kbFile.setAttribute('data', '/controller/kb_InferredLabels.json');
-                    // run clingo to get predictions (Scenario 1)
-                    updateJson("jsonIncomingMessage").done(function(){
-                        // load the file after it has been updated
-                        visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
-                        // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                // if (scenario == 1) {
+                //     // load the file after it has been updated
+                //     visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                //     // on the 2nd scenario, we don't receive any inferred labels
+                //     kbFile.setAttribute('data', '/controller/kb_InferredLabels.json');
+                //     reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                //     msg.textContent += " Now capture the action!";
+                // } else if (scenario == 2 && step == 1) {
+                //     msg.textContent += ` Do a hidden action and capture object again!`;
+                // } else {    // scenario==2 && step==2
+                //     reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                //     msg.textContent += " This scenario is finished!";
+                //     sessionDone = true;
+                // }
+
+                updateJson("jsonIncomingMessage").done(function(){
+                    // load the file after it has been updated
+                    visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                    if (scenario == 1) {
+                        // on the 2nd scenario, we don't receive any inferred labels
+                        kbFile.setAttribute('data', '/controller/kb_InferredLabels.json');
                         execJar().done(function(){
                             // first run the jar, then load the file
                             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
                             msg.textContent += " Now capture the action!";
                         });
-                    });
-                } else if (scenario == 2 && step == 1) {
-                    updateJson("jsonIncomingMessage").done(function(){
-                        visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                    } else if (scenario == 2 && step == 1) {
                         msg.textContent += ` Do a hidden action and capture object again!`;
-                    });
-                } else  {  // scenario==2 && step==2
-                    // run clingo to get action sequence (Scenario 2)
-                    updateJson("jsonIncomingMessage").done(function(){
-                        // load the file after it has been updated
-                        visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
-                        // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                    } else {    // scenario==2 && step==2
                         execJar().done(function(){
                             // first run the jar, then load the file
                             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
                             msg.textContent += " This scenario is finished!";
                         });
-                    });
-                    sessionDone = true;
-                }
+                        sessionDone = true;
+                    }
+                });
+
+                // if (scenario == 1) {
+                //     // on the 2nd scenario, we don't receive any inferred labels
+                //     kbFile.setAttribute('data', '/controller/kb_InferredLabels.json');
+                //     // run clingo to get predictions (Scenario 1)
+                //     updateJson("jsonIncomingMessage").done(function(){
+                //         // load the file after it has been updated
+                //         visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                //         // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                //         execJar().done(function(){
+                //             // first run the jar, then load the file
+                //             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                //             msg.textContent += " Now capture the action!";
+                //         });
+                //     });
+                // } else if (scenario == 2 && step == 1) {
+                //     updateJson("jsonIncomingMessage").done(function(){
+                //         visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                //         msg.textContent += ` Do a hidden action and capture object again!`;
+                //     });
+                // } else  {  // scenario==2 && step==2
+                //     // run clingo to get action sequence (Scenario 2)
+                //     updateJson("jsonIncomingMessage").done(function(){
+                //         // load the file after it has been updated
+                //         visionFile.setAttribute('data', '/controller/vision_ObservedLabels.json');
+                //         // visionFile.setAttribute('data', '/reasoner/jsonIncomingMessage.json');
+                //         execJar().done(function(){
+                //             // first run the jar, then load the file
+                //             reasonerResult.setAttribute('data', '/reasoner/reasonerOutput.txt');
+                //             msg.textContent += " This scenario is finished!";
+                //         });
+                //     });
+                //     sessionDone = true;
+                // }
     
                 // we are done with capturing objects for this session
                 if (scenario == 1 || (scenario == 2 && step == 2)) {

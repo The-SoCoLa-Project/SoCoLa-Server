@@ -4,7 +4,7 @@
   "Sender": "Controller",
   "Source": "Vision",
   "Component": "ObjectDetector",
-  "SessionId": "Cb0Wrp7-i4Lj4ob9_nXOf5S_rgeIq7CE",
+  "SessionId": "m8XX0KVUxE0Jg8I3q8YXWsMpR7TozQrS",
   "Message": [
     ["bottle", 0.67, [["open", 0.5], ["empty", 0.32]]],
     ["phone", 0.47, [["connected", 0.5]]]
