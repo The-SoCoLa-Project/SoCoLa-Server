@@ -1,11 +1,11 @@
 # SoCoLa-Server
 The User Interface of the SoCoLa Demo. It includes both the back-end (web server) and the front-end (client). 
 
-## Webpage Link
+## Webpage of the Demo
 
 [SoCoLa Demo 7.3](http://139.91.183.118:443/)
 
-![Initial State of the UI](https://drive.google.com/file/d/1mVrJ0UTL12U3TKxieTYZlJDm8jOGYGC4/view?usp=sharing)
+![Initial State of the UI](https://drive.google.com/uc?export=view&id=1mVrJ0UTL12U3TKxieTYZlJDm8jOGYGC4)
 
 ### Includes
 * Connection to the Controller Component with use of the [ZeroMQ](https://zeromq.org/) library.
